@@ -1,14 +1,17 @@
 import {fmt,payoff} from './chain.js';
+import InfoTip from './InfoTip.jsx';
 
 export default function Scenario({rows,row,put,onContract,premium,setPremium,expiry,setExpiry}) {
   const valid=[premium,expiry].every(x=>x!=='' && Number.isFinite(+x) && +x>=0);
   const pnl=payoff(row[0],+premium,+expiry,put), be=row[0]+(put?-1:1)*Number(premium);
-  return <section className="card" id="simulator"><div className="eyebrow">02 / Paper exercise</div><h2>Buy or sell scenario</h2>
-    <p>Compare both sides at your assumed expiry price.</p>
-    <div className="fields"><label>Strike<select id="strike" value={row[0]} onChange={e=>onContract(rows.find(r=>r[0]===+e.target.value),put)}>{rows.map(r=><option key={r[0]} value={r[0]}>{fmt(r[0])}</option>)}</select></label>
-    <label>Option type<select id="side" value={put?'Put':'Call'} onChange={e=>onContract(row,e.target.value==='Put')}><option>Call</option><option>Put</option></select></label>
-    <label>Expiry price (₹)<input id="expiry" type="number" min="0" step="any" value={expiry} onChange={e=>setExpiry(e.target.value)}/></label>
-    <label>Premium per unit (₹)<input id="premium" type="number" min="0" step="any" value={premium} onChange={e=>setPremium(e.target.value)}/></label></div>
-    <div className="result" id="outcome" aria-live="polite">{valid?`Buy: ₹${fmt(pnl)} · Sell: ₹${fmt(-pnl||0)} per unit. ${be<0?'No non-negative breakeven.':`Breakeven: ₹${fmt(be)}.`}`:'Enter a non-negative premium and expiry price to compare.'}</div>
-    <small>Per unit, before costs. Last price is not an executable quote. Sellers may need margin; uncovered calls have unlimited loss potential.</small></section>;
+  const result=value=>value>0?`profit ₹${fmt(value)}`:value<0?`loss ₹${fmt(Math.abs(value))}`:'break-even (₹0)';
+  return <section className="card" id="simulator"><div className="eyebrow">02 / Practice without money</div><h2>What if the price ends here?</h2>
+    <p>Choose an option and try a possible price for the day it ends. The results are examples, not real trades.</p>
+    <div className="fields">
+    <div className="field"><div className="field-title"><label htmlFor="strike">Fixed contract price (₹)</label><InfoTip title="Strike price">This is the price named in the option. Example: a call with a ₹100 strike gives its buyer the right to buy at ₹100. If the share is ₹110 when the option ends, that right is worth ₹10 per unit.</InfoTip></div><select id="strike" value={row[0]} onChange={e=>onContract(rows.find(r=>r[0]===+e.target.value),put)}>{rows.map(r=><option key={r[0]} value={r[0]}>{fmt(r[0])}</option>)}</select></div>
+    <div className="field"><div className="field-title"><label htmlFor="side">Right: buy or sell?</label><InfoTip title="Call or put">A call is the buyer's right to buy at the fixed price. A put is the buyer's right to sell at that price. Example: with a ₹100 call, the buyer may buy for ₹100 even if the share reaches ₹110. The buyer can choose not to use the right.</InfoTip></div><select id="side" value={put?'Put':'Call'} onChange={e=>onContract(row,e.target.value==='Put')}><option>Call</option><option>Put</option></select></div>
+    <div className="field"><div className="field-title"><label htmlFor="expiry">Underlying price when it ends (₹)</label><InfoTip title="Price at expiry">This is your guess for the share or index price on the option's final day. It is not the date itself. Example: enter ₹103 to ask “what if the index is at ₹103 when this option ends?”</InfoTip></div><input id="expiry" type="number" min="0" step="any" value={expiry} onChange={e=>setExpiry(e.target.value)}/></div>
+    <div className="field"><div className="field-title"><label htmlFor="premium">Option price per unit (₹)</label><InfoTip title="Premium">The amount paid for one unit of the option. The buyer pays it; the seller receives it. Example: if it costs ₹5, a call buyer whose right is worth ₹3 at the end still loses ₹2 per unit (₹3 value minus ₹5 paid). The starting number comes from the CSV and can be changed.</InfoTip></div><input id="premium" type="number" min="0" step="any" value={premium} onChange={e=>setPremium(e.target.value)}/></div></div>
+    <div className="result" id="outcome" aria-live="polite">{valid?`Buyer: ${result(pnl)} · Seller: ${result(-pnl)} per unit. ${be<0?'No non-negative break-even price.':`Buyer breaks even at an ending price of ₹${fmt(be)}.`}`:'Enter a non-negative option price and ending price to compare.'}</div>
+    <small>Results are for one share/index unit only; a real contract may cover a bundle of units. Fees and taxes are not included. The last traded price may not be current.</small><InfoTip title="Result and risk">The buyer pays for the option. The seller receives that payment but takes on an obligation. Example: a ₹100 call bought for ₹5 breaks even when the share reaches ₹105, before fees. Selling options can lose much more than the money received; this practice calculator does not show every real-world cost.</InfoTip></section>;
 }

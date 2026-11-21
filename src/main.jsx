@@ -7,6 +7,7 @@ import Prediction from './Prediction.jsx';
 import Scenario from './Scenario.jsx';
 import ImportDialog from './ImportDialog.jsx';
 import {Metrics,Chart,StrikeTable} from './Snapshot.jsx';
+import InfoTip from './InfoTip.jsx';
 
 const sample={label:'NIFTY 50 · Sample expiry',rows:demo};
 
@@ -21,10 +22,10 @@ function Desk({rows}) {
     <Prediction {...{band,row,put}} onTest={()=>{setPremium(row[put?4:3]);testPrice(band.target)}}/>
     <Metrics rows={rows}/>
     <div className="grid"><Chart rows={rows}/><Scenario {...{rows,row,put,onContract,premium,setPremium,expiry,setExpiry}}/></div>
-    <section className="card block"><div className="eyebrow">03 / Chain-implied scenario</div><h2>What price is the chain implying?</h2>
-    <p>{ref?`Strike + call − put = ₹${fmt(ref.pair[0])} + ₹${fmt(ref.pair[3])} − ₹${fmt(ref.pair[4])} = ₹${fmt(ref.price)}.`:'No usable call and put price pair.'}</p>
-    <button className="block" disabled={!ref} onClick={()=>testPrice(ref.price)}>Test this expiry price</button>
-    <p><small>This reference assumes European options, negligible interest and matching quote times. It is not a prediction of settlement.</small></p></section>
+    <section className="card block"><div className="eyebrow">03 / Compare option prices</div><div className="heading-info"><h2>A rough price comparison</h2><InfoTip title="How this comparison is worked out">For options with the same fixed price and end date, start with the fixed price, add the call's price, then subtract the put's price. Example: ₹100 + ₹5 − ₹3 = ₹102. This is a rough comparison from option prices, not a forecast of where the market will end. It only makes sense when the call and put are from the same time and contract.</InfoTip></div>
+    <p>{ref?`For strike ₹${fmt(ref.pair[0])}: ₹${fmt(ref.pair[0])} + call price ₹${fmt(ref.pair[3])} − put price ₹${fmt(ref.pair[4])} = comparison price ₹${fmt(ref.price)}.`:'The file needs a call and put price at the same fixed price before this comparison can be shown.'}</p>
+    <button className="block" disabled={!ref} onClick={()=>testPrice(ref.price)}>Try this price in the practice section</button>
+    <p><small>This is only a comparison based on the saved file. It is not a prediction or a promise about the final price.</small></p></section>
     <StrikeTable rows={rows}/></>;
 }
 
@@ -33,10 +34,10 @@ function App() {
   function change(next){setSnapshot(next);setRevision(v=>v+1)}
   return <><header><div className="wrap"><div className="brand"><span className="mark">≋</span>Strikebook</div>
     <nav><a href="#desk">Analysis desk</a><a href="#prediction">Prediction</a><a href="#learn">Learn options</a><a href="#how-it-works">How it works</a></nav></div></header>
-    <main className="wrap" id="desk"><section className="hero"><div className="eyebrow">Derivatives workspace / India</div><h1>Option chain desk</h1><p>Read the positioning. Test a price view. Understand the risk.</p></section>
+    <main className="wrap" id="desk"><section className="hero"><div className="eyebrow">Practice with options · India</div><div className="heading-info"><h1>Option chain desk</h1><InfoTip title="Option chain desk">An option chain is a list of choices to buy or sell at different fixed prices. This desk lets you explore those choices with made-up or saved prices. Example: see how a ₹100 call might work if the share ended at ₹103. It does not place trades or show live prices.</InfoTip></div><p>Explore option prices, try a possible ending price, and see how the results change.</p></section>
     <div className="row split"><div className="row"><strong>{snapshot.label}</strong><span className="pill">{snapshot===sample?'Illustrative data':'Imported · not live'}</span></div>
     <div className="row">{snapshot!==sample && <button onClick={()=>change(sample)}>Restore demo</button>}<ImportDialog onImport={change}/></div></div>
-    <Desk key={revision} rows={snapshot.rows}/><Guide/><footer>Educational simulator · No orders, live prices or validated trading signals.</footer></main></>;
+    <Desk key={revision} rows={snapshot.rows}/><Guide/><footer>For learning only · No trades, live prices, or reliable predictions.</footer></main></>;
 }
 
 createRoot(document.getElementById('root')).render(<App/>);

@@ -1,0 +1,25 @@
+.heading-info,.metric-label,.field-title,.table-heading{display:flex;align-items:center;gap:6px}
+.heading-info{justify-content:space-between}
+.metric-label{justify-content:space-between}
+.heading-info,.metric-label,.field-title{position:relative}
+.heading-info .info-tip,.metric-label .info-tip,.field-title .info-tip{position:static}
+.heading-info .info-content,.metric-label .info-content,.field-title .info-content{right:0;left:auto}
+.metric-label small{font-size:12px}
+.field{min-width:0}
+.field-title{margin-bottom:4px}
+.field-title label{display:block}
+.table-heading{justify-content:flex-end;white-space:nowrap}
+.info-tip{position:relative;display:inline-block;vertical-align:middle;flex:0 0 auto;margin-left:2px;border:0;padding:0}
+.info-tip>summary{list-style:none;display:grid;place-items:center;width:22px;height:22px;padding:0;border:1px solid var(--cp-border-strong);border-radius:50%;background:var(--cp-bg-elevated);color:var(--cp-text-muted);font:700 13px/1 "Segoe UI",sans-serif}
+.info-tip>summary::-webkit-details-marker{display:none}
+.info-tip>summary:hover,.info-tip[open]>summary{color:var(--cp-accent);border-color:var(--cp-accent)}
+.info-content{position:absolute;z-index:10;top:calc(100% + 6px);left:0;width:min(300px,calc(100vw - 40px));padding:12px 14px;border:1px solid var(--cp-border);border-radius:10px;background:var(--cp-surface);box-shadow:var(--cp-shadow);text-align:left;white-space:normal;font-size:13px;font-weight:400}
+.info-content strong{display:block;margin-bottom:4px;color:var(--cp-text)}
+.info-content p{padding:0;color:var(--cp-text-muted)}
+.table-heading .info-content,.stats .card:last-child .info-content{right:0;left:auto}
+.import-steps{padding-left:22px;margin:12px 0;color:var(--cp-text-muted)}
+.import-steps li+li{margin-top:6px}
+.import-note{font-size:13px;margin:8px 0}
+dialog{max-height:90vh;overflow:auto;max-width:min(600px,95vw)}
+#error:empty{display:none}
+@media(max-width:740px){.stats{grid-template-columns:1fr}.stats .card{padding:12px}.metric-label small{font-size:12px}.heading-info{align-items:flex-start}.fields{grid-template-columns:1fr}.info-content{width:min(280px,calc(100vw - 40px))}}

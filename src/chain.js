@@ -6,23 +6,23 @@ function csvRows(text){
   else if(!quoted&&c===','){row.push(field.trim());field=''}
   else if(!quoted&&c==='\n'){row.push(field.trim());rows.push(row);row=[];field=''}
   else field+=c;
- }if(quoted)throw Error('Unclosed CSV quote. Re-export the snapshot.');
+ }if(quoted)throw Error('The CSV has a quote mark that was not closed. Download it again or compare it with the sample file.');
  row.push(field.trim());rows.push(row);return rows;
 }
 function parseChain(text){
  const all=csvRows(text),h=all.findIndex(row=>row.some(c=>/^strike( price)?$/i.test(c)));
- if(h<0)throw Error('No STRIKE column found.');
+ if(h<0)throw Error('Could not find the STRIKE column (the fixed price for each option). Check the CSV or use the sample file.');
  const hdr=all[h].map(c=>c.toUpperCase()),k=hdr.findIndex(c=>/^STRIKE( PRICE)?$/.test(c));
  const indices=[k,...['OI','OI','LTP','LTP'].map((name,j)=>hdr.findIndex((c,i)=>c===name&&(j%2?i>k:i<k)))];
- if(indices.includes(-1))throw Error('Both call and put OI and LTP columns are required.');
+ if(indices.includes(-1))throw Error('Could not find the OI and LTP columns for both calls and puts. Check the sample CSV for the required columns.');
  const data=[],seen=new Set();
  for(let i=h+1;i<all.length;i++){const r=all[i];if(!r.some(Boolean)||r.some(c=>/^totals?:?$/i.test(c)))continue;
  const values=indices.map((n,j)=>{const s=r[n];if(j&&['','-','—'].includes(s))return null;
- if(!s||!/^(\d+|\d{1,3}(?:,\d{2,3})+)(\.\d+)?$/.test(s))throw Error(`Invalid number on row ${i+1}.`);
- const v=Number(s.replaceAll(',',''));if(!Number.isFinite(v)||((j===1||j===2)&&!Number.isSafeInteger(v)))throw Error(`Invalid value on row ${i+1}.`);return v});
- if(values[0]<=0||seen.has(values[0]))throw Error('Expected unique positive strikes for one expiry.');
+ if(!s||!/^(\d+|\d{1,3}(?:,\d{2,3})+)(\.\d+)?$/.test(s))throw Error(`Row ${i+1} has a number we do not recognize. Check it against the sample CSV.`);
+ const v=Number(s.replaceAll(',',''));if(!Number.isFinite(v)||((j===1||j===2)&&!Number.isSafeInteger(v)))throw Error(`Row ${i+1} has a value we cannot use. Check it against the sample CSV.`);return v});
+ if(values[0]<=0||seen.has(values[0]))throw Error('Each price must be greater than zero and appear only once. Use one symbol and one expiry per file.');
  seen.add(values[0]);data.push(values);
- }if(!data.length||data.length>5000)throw Error('Expected between 1 and 5,000 strike rows.');
+ }if(!data.length||data.length>5000)throw Error('The CSV must contain between 1 and 5,000 rows of option prices.');
  return data.sort((a,b)=>a[0]-b[0]);
 }
 function payoff(k,p,s,put){return Math.max(0,put?k-s:s-k)-p}
