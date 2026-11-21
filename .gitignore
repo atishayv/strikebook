@@ -1,0 +1,17 @@
+# Dependencies
+node_modules/
+
+# Logs and test output
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+coverage/
+
+# Local environment files
+.env
+.env.*
+!.env.example
+
+# Operating system files
+.DS_Store
+Thumbs.db
