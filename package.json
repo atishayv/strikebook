@@ -1,0 +1,12 @@
+{
+  "name": "strikebook",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "build": "esbuild src/main.jsx --bundle --minify --jsx=automatic --outfile=dist/app.js",
+    "dev": "npm run build -- --watch --servedir=.",
+    "test": "node --test"
+  },
+  "dependencies": {"react": "^19.0.0", "react-dom": "^19.0.0"},
+  "devDependencies": {"esbuild": "^0.25.0"}
+}
